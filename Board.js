@@ -1,7 +1,18 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import update from 'react-addons-update';
+
+var initialState = [...Array(4)].map(e => Array(true, false, false, false));
 
 export class Board extends Component {
+
+  constructor(){
+      super();
+      this.state = {
+        boardState: initialState
+      }
+  }
+  
   render() {
     return(
         <>
@@ -11,28 +22,38 @@ export class Board extends Component {
   }
 
 
-  buttonPress() {
+  //toggles boolean for the button pressed
+  buttonPress(row, id) {
+      this.setState(update(this.state, {
+          boardState: {
+              [row]: {
+                  [id]: {
+                    $set: !this.state.boardState[row][id]
+                  }
+              }
+          }
+      }));
   }
 
-  renderButton(){
+  renderButton(rowid, id){
       return (
         <>
             <TouchableOpacity
-                style={styles.gameButton}
-                onPress={this.buttonPress}
+                style={this.buttonStyle(rowid, id)}
+                onPress={() => this.buttonPress(rowid, id)}
             ></TouchableOpacity>
         </>
       )
   }
   
-  renderRow(){
+  renderRow(id){
       return (
           <>
             <View style={styles.buttonRow}>
-                {this.renderButton()}
-                {this.renderButton()}
-                {this.renderButton()}
-                {this.renderButton()}
+                {this.renderButton(id, 0)}
+                {this.renderButton(id, 1)}
+                {this.renderButton(id, 2)}
+                {this.renderButton(id, 3)}
             </View>
           </>
       )
@@ -42,13 +63,22 @@ export class Board extends Component {
     return (
         <>
             <View>
-                {this.renderRow()}
-                {this.renderRow()}
-                {this.renderRow()}
-                {this.renderRow()}
+                {this.renderRow(0)}
+                {this.renderRow(1)}
+                {this.renderRow(2)}
+                {this.renderRow(3)}
             </View>
         </>
     )
+  }
+
+  buttonStyle(rowid, id){
+    if(this.state.boardState[rowid][id]){
+        return [styles.gameButton, styles.gameButtonSelected];     
+    }
+    else{
+        return [styles.gameButton, styles.gameButtonUnSelected];  
+    }
   }
 
 }
@@ -58,9 +88,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     gameButton: {
-        backgroundColor: "#52ff33",
         padding: 20,
         borderWidth: 2,
         borderColor: "#000000"
+    },
+    gameButtonSelected: {
+        backgroundColor: "#52ff33"
+    },
+    gameButtonUnSelected: {
+        backgroundColor: "#ff0000"
     }
 });
